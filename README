@@ -1,0 +1,118 @@
+
+	    E     X     T     E     N     S     I     B     L     E
+                                        
+            |#%#&&.  |##&%&#  |#\  /|#    /#\     ,&#%#&.  ,&##%#&.
+            |#   |#  |#       |#&\/&|#   /%:#\   |#        |#
+            |#   |#  |##&%&#  |#    |#  |#   |#  |#        `+&#%#+,
+            |#   |#  |#       |#    |#  |####|#  |#              |#
+            |#$$$|#  |##&%&#  |#    |#  |#   |#  `+#%#&#~  ~&#%&#^
+                                        
+        D    E    F    I    N    E    R       M    A    C    R    O    S
+					
+Demacs is an extensible Common Lisp utility software to ease the definitions in
+language by supplying a standard syntax. Demacs is written from scratch with the
+idea of syntax of cl-def[1] in mind. Despite there are some other definer
+utilities in the wide (e.g. definer[2], cl-def[1]), almost all of them lack of
+at least one of below functionalities.
+
+- Extensibility. (definer[2] doesn't support extensions.)
+
+- Affordable dependency. (cl-def[1] depends on some libraries, and those
+  libraries depend on some other libraries and so on... You're required to
+  install a dozen of libraries to benefit from a single definer utility.
+  Furthermore, a major portion of related libraries are not available via
+  ASDF-INSTALL.)
+
+To summarize, demacs is implemented with KISS[3] principle in mind. And as a
+bonus, demacs has no library dependencies.
+
+[1] http://common-lisp.net/project/cl-def/
+[2] http://www.common-lisp.net/project/definer
+[3] http://en.wikipedia.org/wiki/KISS_principle
+
+
+
+			 --- S   Y   N   T   A   X ---
+
+(def function-spec name lambda-list [[declaration* | documentation]] form*)
+function-spec ::= function |  (function {function-option}*)
+function-option ::= i | o | d | e
+
+(def macro-spec name lambda-list [[declaration* | documentation]] form*)
+macro-spec ::= macro | (macro {macro-option}*)
+macro-option ::= o | d | e
+
+(def compiler-macro-spec name lambda-list [[declaration* | documentation]] form*)
+compiler-macro-spec ::= compiler-macro | (compiler-macro {macro-option*})
+
+(def generic-spec name gf-lambda-list [[{method-description}*]])
+generic-spec ::= generic | (generic {generic-option}* [[gf-option*]])
+generic-option ::= o | d | e
+
+(def method-spec name specialized-lambda-list [[declaration* | documentation]] form*)
+method-spec ::= method | (method {method-option}* [[method-qualifier*]])
+method-option ::= o | d
+
+(def (type-spec) name lambda-list [[declaration* | documentation]] form*)
+type-spec ::= type | (type {type-option}*)
+type-option ::= e
+
+(def print-object-spec object (self stream) [[declaration* | documentation]] form*)
+print-object-spec ::= print-object | (print-object &key print-identity print-type package)
+
+(def constant-spec name value)
+constant-spec ::= constant | (constant {variable-option}* &key test documentation)
+variable-option := e
+
+(def special-variable-spec name [value])
+special-variable-spec ::= special-variable | (special-variable {variable-option}* &key documentation)
+
+(def symbol-macro-spec name form)
+symbol-macro-spec ::= symbol-macro | (symbol-macro {variable-option}*)
+
+(def class-spec name ({superclass}*) ({slot-specifier}*) [[class-option]])
+class-spec ::= class | (class {class-option}*)
+class-option ::= e | a | s
+
+(def condition-spec name (parent-type*) ({slot-spec}*) option*)
+condition-spec ::= condition | (condition {class-option}*)
+
+(def struct-spec name-and-options [documentation] {slot-description}*)
+name-and-options ::= structure-name | (structure-name [[options]])
+struct-spec ::= struct | (struct {class-option}*)
+
+i -- Inline function.
+o -- Make optimization declarations.
+d -- Make debugging declarations.
+e -- Export function.
+a -- Export class accessors.
+s -- Export slot symbols.
+
+
+	   --- E   X   T   E   N   S   I   B   I   L   I   T   Y ---
+
+All definers in demacs first inherits DEFINER class. And based on DEFINER class,
+INITIALIZE-DEFINER and EXPAND-DEFINER gets called. Used CLOS architecture, helps
+programmers to benefit from inherited classes methods and eases implementation
+of definers. For instance, consider macro definer:
+
+  (defclass macro-definer (function-definer) ())
+  
+  (defmethod available-definer-options ((definer macro-definer))
+    (list #\o #\d #\e))
+  
+  (defmethod expand-definer ((definer macro-definer))
+    (expand-function-like-definer definer 'defmacro))
+
+There are various helper functions served with the package to ease the
+implementation of new definers. Decide which file fits better to your new
+definer -- Will it have a function-like, variable-like or miscelanous form? --
+and check the existing samples in the existing file.
+
+
+	       --- I   N   D   E   N   T   A   T   I   O   N ---
+
+Because of definer macros don't play well with the existing lisp indentation
+semantics of editors, it can sometimes become a pain to indent definer forms in
+an appropriate style. To solve this problem, see indentation scripts supplied
+under contrib directory.
