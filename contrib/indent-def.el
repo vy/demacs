@@ -36,15 +36,22 @@
 
 (defcustom lisp-indent-def-function-regexp
   (concatenate-symbols-for-regexp
-   function macro compiler-macro method generic type print-object)
+   function macro compiler-macro method generic type print-object class
+   condition)
   "Definer types will be indented like a function definition form."
   :type 'string
   :group 'lisp-indent)
 
 (defcustom lisp-indent-def-variable-regexp
   (concatenate-symbols-for-regexp
-   variable constant load-time-constant special-variable symbol-macro)
+   variable constant load-time-constant special-variable symbol-macro struct)
   "Definer types will be indented like a variable definition form."
+  :type 'string
+  :group 'lisp-indent)
+
+(defcustom lisp-indent-def-setf-regexp
+  (concatenate-symbols-for-regexp setf)
+  "Definer types will be indented like a setf definition form."
   :type 'string
   :group 'lisp-indent)
 
@@ -62,9 +69,11 @@
   (lisp-indent-259
    (with-position-at-def-type (elt state 1)
     (cond ((looking-at lisp-indent-def-function-regexp)
-	   '(4 4 (&whole 4 &rest 4) &body))
+	   '(4 4 (&rest 4) &body))
 	  ((looking-at lisp-indent-def-variable-regexp)
 	   '(4 4 &body))
+	  ((looking-at lisp-indent-def-setf-regexp)
+	   '(4 4 (&rest 4) 4 &body))
 	  (t
 	   (error "No available indentation for definer of type `%s'."
 		  (current-word)))))
