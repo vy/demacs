@@ -207,3 +207,33 @@
          ,@(when-has-option definer #\d (declare-debug definer))
          ,@declarations
          ,@body))))
+
+
+;;; SETF DEFINER ROUTINES
+
+(defclass setf-definer (function-definer)
+  ((new-value :accessor new-value-of)))
+
+(defmethod available-definer-options ((definer setf-definer))
+  (list #\o #\d))
+
+(defmethod initialize-definer ((definer setf-definer))
+  (prog1 (initialize-function-like-definer definer)
+    (destructuring-bind (new-value-spec &body body) (body-of definer)
+      (unless (and (listp new-value-spec)
+                   (null (rest new-value-spec))
+                   (symbolp (first new-value-spec)))
+        (error "Invalid NEW-VALUE symbol in definer ~s of type ~s."
+               (name-of definer) (definer-type definer)))
+      (setf (new-value-of definer) (first new-value-spec)
+            (body-of definer) body))))
+
+(defmethod expand-definer ((definer setf-definer))
+  (with-body-parts (declarations documentation body) (body-of definer)
+    `(defsetf ,(name-of definer) ,(lambda-list-of definer)
+         (,(new-value-of definer))
+       ,@(when documentation `(,documentation))
+       ,@(when-has-option definer #\o (declare-optimize definer))
+       ,@(when-has-option definer #\d (declare-debug definer))
+       ,@declarations
+       ,@body)))

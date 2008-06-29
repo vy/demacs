@@ -62,6 +62,7 @@
    :generic-definer
    :type-definer
    :print-object-definer
+   :setf-definer
    ;; Variable Definers
    :variable-definer
    :constant-definer

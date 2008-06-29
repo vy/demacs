@@ -60,6 +60,10 @@ type-option ::= e
 (def print-object-spec object (self stream) [[declaration* | documentation]] form*)
 print-object-spec ::= print-object | (print-object &key print-identity print-type package)
 
+(def setf-spec name lambda-list (new-value) [[declaration* | documentation]] form*)
+setf-spec ::= setf | (setf {setf-option}*)
+setf-option ::= o | d
+
 (def constant-spec name value)
 constant-spec ::= constant | (constant {variable-option}* &key test documentation)
 variable-option := e
