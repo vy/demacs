@@ -38,11 +38,11 @@ bonus, demacs has no library dependencies.
 function-spec ::= function |  (function {function-option}*)
 function-option ::= i | o | d | e
 
-(def macro-spec name lambda-list [[declaration* | documentation]] form*)
+(def macro-spec name macro-lambda-list [[declaration* | documentation]] form*)
 macro-spec ::= macro | (macro {macro-option}*)
 macro-option ::= o | d | e
 
-(def compiler-macro-spec name lambda-list [[declaration* | documentation]] form*)
+(def compiler-macro-spec name macro-lambda-list [[declaration* | documentation]] form*)
 compiler-macro-spec ::= compiler-macro | (compiler-macro {macro-option*})
 
 (def generic-spec name gf-lambda-list [[{method-description}*]])
@@ -53,14 +53,14 @@ generic-option ::= o | d | e
 method-spec ::= method | (method {method-option}* [[method-qualifier*]])
 method-option ::= o | d
 
-(def (type-spec) name lambda-list [[declaration* | documentation]] form*)
+(def (type-spec) name deftype-lambda-list [[declaration* | documentation]] form*)
 type-spec ::= type | (type {type-option}*)
 type-option ::= e
 
 (def print-object-spec object (self stream) [[declaration* | documentation]] form*)
 print-object-spec ::= print-object | (print-object &key print-identity print-type package)
 
-(def setf-spec name lambda-list (new-value) [[declaration* | documentation]] form*)
+(def setf-spec name defsetf-lambda-list (new-value) [[declaration* | documentation]] form*)
 setf-spec ::= setf | (setf {setf-option}*)
 setf-option ::= o | d
 
