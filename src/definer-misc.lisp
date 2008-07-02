@@ -36,16 +36,72 @@
               (struct-definer #'slot-descs-of))
             definer)))
 
+(defun ensure-slot-spec (definer test keyword fmt-accessor)
+  (mapcar
+   (lambda (slot-spec)
+     (let ((slot-spec (ensure-list slot-spec)))
+       (if (funcall test slot-spec)
+           slot-spec
+           (list keyword
+                 (intern
+                  (format nil (string-upcase (funcall fmt-accessor definer))
+                          (first slot-spec))
+                  :keyword)))))
+   (slot-specs-of definer)))
+
+(defun ensure-slot-spec-initargs (definer)
+  (ensure-slot-spec
+   definer
+   (lambda (slot-spec) (getf (rest slot-spec) :initarg))
+   :initarg #'initarg-format-of))
+
+(defun ensure-slot-spec-accessors (definer)
+  (ensure-slot-spec
+   definer
+   (lambda (slot-spec &aux (plist (rest slot-spec)))
+     (or (getf plist :accessor)
+         (and (getf plist :reader)
+              (getf plist :writer))))
+   :accessor #'accessor-format-of))
+
+(defun ensure-slot-spec-readers (definer)
+  (ensure-slot-spec
+   definer
+   (lambda (slot-spec) (getf (rest slot-spec) :reader))
+   :reader #'reader-format-of))
+
+(defun ensure-slot-spec-writers (definer)
+  (ensure-slot-spec
+   definer
+   (lambda (slot-spec) (getf (rest slot-spec) :writer))
+   :writer #'reader-format-of))
+
 
 ;;; CLASS DEFINER ROUTINES
 
 (defclass class-definer (definer)
   ((superclasses :accessor superclasses-of)
    (slot-specs :accessor slot-specs-of)
-   (class-options :accessor class-options-of)))
+   (class-options :accessor class-options-of)
+   (initarg-format
+    :accessor initarg-format-of
+    :type string
+    :initform "~s")
+   (accessor-format
+    :accessor accessor-format-of
+    :type string
+    :initform "~s-of")
+   (reader-format
+    :accessor reader-format-of
+    :type string
+    :initform "~s-of")
+   (writer-format
+    :accessor writer-format-of
+    :type string
+    :initform "~s-of")))
 
 (defmethod available-definer-options ((definer class-definer))
-  (list #\e #\a #\s))
+  (list #\e #\a #\s #\n #\c #\r #\w))
 
 (defmethod restricted-definer-options ((definer class-definer))
   nil)
@@ -61,7 +117,25 @@
           (superclasses-of definer) superclasses
           (slot-specs-of definer) slot-specs
           (class-options-of definer) class-options))
-  (validate-definer-options definer)
+  (validate-definer-options
+   definer
+   (combine-option-writers
+    (list
+     :initarg-format (make-option-writer
+                      initarg-format-of ensure-string-option)
+     :accessor-format (make-option-writer
+                       accessor-format-of ensure-string-option)
+     :reader-format (make-option-writer
+                     reader-format-of ensure-string-option)
+     :writer-format (make-option-writer
+                     writer-format-of ensure-string-option))))
+  (macrolet ((ensure-slot-spec-identifier (option ensure)
+               `(when (has-option-p definer ,option)
+                  (setf (slot-specs-of definer) (,ensure definer)))))
+    (ensure-slot-spec-identifier #\n ensure-slot-spec-initargs)
+    (ensure-slot-spec-identifier #\c ensure-slot-spec-accessors)
+    (ensure-slot-spec-identifier #\r ensure-slot-spec-readers)
+    (ensure-slot-spec-identifier #\w ensure-slot-spec-writers))
   definer)
 
 (defun extract-class-accessors (definer)
@@ -85,7 +159,7 @@
   `(progn
      (defclass ,(name-of definer) ,(superclasses-of definer)
        ,(slot-specs-of definer)
-       ,(class-options-of definer))
+       ,@(class-options-of definer))
      ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
      ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
      ,@(when (has-option-p definer #\a)

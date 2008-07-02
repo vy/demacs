@@ -75,11 +75,11 @@ special-variable-spec ::= special-variable | (special-variable {variable-option}
 symbol-macro-spec ::= symbol-macro | (symbol-macro {variable-option}*)
 
 (def class-spec name ({superclass}*) ({slot-specifier}*) [[class-option]])
-class-spec ::= class | (class {class-option}*)
-class-option ::= e | a | s
+class-spec ::= class | (class {class-option}* &key initarg-format accessor-format reader-format writer-format)
+class-option ::= e | a | s | n | c | r | w
 
 (def condition-spec name (parent-type*) ({slot-spec}*) option*)
-condition-spec ::= condition | (condition {class-option}*)
+condition-spec ::= condition | (condition {class-option}* &key initarg-format accessor-format reader-format writer-format)
 
 (def struct-spec name-and-options [documentation] {slot-description}*)
 name-and-options ::= structure-name | (structure-name [[options]])
@@ -91,6 +91,10 @@ d -- Make debugging declarations.
 e -- Export function.
 a -- Export class accessors.
 s -- Export slot symbols.
+n -- Introduce :INITARG keywords into slot specifiers.
+c -- Introduce :ACCESSOR keywords into slot specifiers.
+r -- Introduce :READER keywords into slot specifiers.
+w -- Introduce :WRITER keywords into slot specifiers.
 
 
 	   --- E   X   T   E   N   S   I   B   I   L   I   T   Y ---

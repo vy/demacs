@@ -49,7 +49,7 @@
    :validate-definer-options
    :combine-option-writers
    :make-option-writer
-   :when-has-option
+   :has-option-p
    ;; Function Definers
    :declare-optimize
    :declare-debug
@@ -73,6 +73,11 @@
    :extract-slots
    :extract-class-accessors
    :extract-struct-accessors
+   :ensure-slot-spec
+   :ensure-slot-spec-initargs
+   :ensure-slot-spec-accessors
+   :ensure-slot-spec-readers
+   :ensure-slot-spec-writers
    :class-definer
    :condition-definer
    :struct-definer))
