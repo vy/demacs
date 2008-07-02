@@ -102,7 +102,7 @@
          (defconstant ,name ,(reevaluate-constant definer)
            ,@(when-let (documentation (documentation-of definer))
                `(,documentation))))
-       ,@(when-has-option definer #\e `(export ',name)))))
+       ,@(when (has-option-p definer #\e) `((export ',name))))))
 
 
 ;;; LOAD-TIME-CONSTANT DEFINER ROUTINES
@@ -129,7 +129,7 @@
          (unless (boundp ',variable-name)
            (setf ,variable-name ,(value-of definer))))
        (define-symbol-macro ,name (load-time-value ,variable-name))
-       ,@(when-has-option definer #\e `(export ',name)))))
+       ,@(when (has-option-p definer #\e) `((export ',name))))))
 
 
 ;;; SPECIAL-VARIABLE DEFINER ROUTINES
@@ -153,7 +153,7 @@
        (makunbound ',name)
        ,@(when (slot-boundp definer 'value)
            `((setf ,name ,(value-of definer))))
-       ,@(when-has-option definer #\e `(export ',name)))))
+       ,@(when (has-option-p definer #\e) `((export ',name))))))
 
 
 ;;; SYMBOL-MACRO DEFINER ROUTINES
@@ -167,4 +167,4 @@
   (let ((name (name-of definer)))
     `(progn
        (define-symbol-macro ,name ,(value-of definer))
-       ,@(when-has-option definer #\e `(export ',name)))))
+       ,@(when (has-option-p definer #\e) `((export ',name))))))

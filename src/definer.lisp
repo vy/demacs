@@ -145,5 +145,5 @@
                   `(,validator ,definer ,keyword ,value)
                   value)))))
 
-(defun when-has-option (definer option &rest rest)
-  (when (member option (options-of definer) :test #'char-equal) rest))
+(defun has-option-p (definer option)
+  (member option (options-of definer) :test #'char-equal))

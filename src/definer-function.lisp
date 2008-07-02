@@ -52,17 +52,18 @@
 (defun expand-function-like-definer (definer function &key method-qualifiers)
   (with-body-parts (declarations docstring body) (body-of definer)
     `(progn
-       ,@(when-has-option definer #\i `(declaim (inline ,(name-of definer))))
+       ,@(when (has-option-p definer #\i)
+           `((declaim (inline ,(name-of definer)))))
        (,function
         ,(name-of definer)
         ,@method-qualifiers
         ,(lambda-list-of definer)
          ,@(when docstring `(,docstring))
-         ,@(when-has-option definer #\o (declare-optimize definer))
-         ,@(when-has-option definer #\d (declare-debug definer))
+         ,@(when (has-option-p definer #\o) `(,(declare-optimize definer)))
+         ,@(when (has-option-p definer #\d) `(,(declare-debug definer)))
          ,@declarations
          ,@body)
-       ,@(when-has-option definer #\e `(export ',(name-of definer))))))
+       ,@(when (has-option-p definer #\e) `((export ',(name-of definer)))))))
 
 
 ;;; FUNCTION DEFINER ROUTINES
@@ -146,11 +147,11 @@
       (let ((name (name-of definer)))
         `(progn
            (defgeneric ,name ,(lambda-list-of definer)
-             ,@(when-has-option definer #\o (declare-optimize definer))
-             ,@(when-has-option definer #\d (declare-debug definer))
+             ,@(when (has-option-p definer #\o) `(,(declare-optimize definer)))
+             ,@(when (has-option-p definer #\d) `(,(declare-debug definer)))
              ,@declarations
              ,@forms)
-           ,@(when-has-option definer #\e `(export ',name)))))))
+           ,@(when (has-option-p definer #\e) `((export ',name))))))))
 
 
 ;;; TYPE DEFINER ROUTINES
@@ -203,8 +204,8 @@
                 `(:package ,(package-of definer))))
            ,(lambda-list-of definer)
          ,@(when docstring (list docstring))
-         ,@(when-has-option definer #\o (declare-optimize definer))
-         ,@(when-has-option definer #\d (declare-debug definer))
+         ,@(when (has-option-p definer #\o) `(,(declare-optimize definer)))
+         ,@(when (has-option-p definer #\d) `(,(declare-debug definer)))
          ,@declarations
          ,@body))))
 
@@ -233,7 +234,7 @@
     `(defsetf ,(name-of definer) ,(lambda-list-of definer)
          (,(new-value-of definer))
        ,@(when documentation `(,documentation))
-       ,@(when-has-option definer #\o (declare-optimize definer))
-       ,@(when-has-option definer #\d (declare-debug definer))
+       ,@(when (has-option-p definer #\o) `(,(declare-optimize definer)))
+       ,@(when (has-option-p definer #\d) `(,(declare-debug definer)))
        ,@declarations
        ,@body)))

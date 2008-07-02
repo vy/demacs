@@ -86,9 +86,10 @@
      (defclass ,(name-of definer) ,(superclasses-of definer)
        ,(slot-specs-of definer)
        ,(class-options-of definer))
-     ,@(when-has-option definer #\e `(export ',(name-of definer)))
-     ,@(when-has-option definer #\s `(export ',(extract-slots definer)))
-     ,@(when-has-option definer #\a `(export ',(extract-class-accessors definer)))))
+     ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
+     ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
+     ,@(when (has-option-p definer #\a)
+         `((export ',(extract-class-accessors definer))))))
 
 
 ;;; CONDITION DEFINER ROUTINES
@@ -129,6 +130,7 @@
      (defstruct (,(name-of definer) ,@(struct-options-of definer))
        ,@(when (documentation-of definer) `(,(documentation-of definer)))
        ,@(slot-descs-of definer))
-     ,@(when-has-option definer #\e `(export ',(name-of definer)))
-     ,@(when-has-option definer #\s `(export ',(extract-slots definer)))
-     ,@(when-has-option definer #\a `(export ',(extract-struct-accessors definer)))))
+     ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
+     ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
+     ,@(when (has-option-p definer #\a)
+         `((export ',(extract-struct-accessors definer))))))
