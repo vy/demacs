@@ -36,24 +36,29 @@
               (struct-definer #'slot-descs-of))
             definer)))
 
-(defun ensure-slot-spec (definer test keyword fmt-accessor)
+(defun ensure-slot-spec
+    (definer test keyword fmt-accessor &optional (package *package*))
   (mapcar
    (lambda (slot-spec)
      (let ((slot-spec (ensure-list slot-spec)))
        (if (funcall test slot-spec)
            slot-spec
-           (list keyword
-                 (intern
-                  (format nil (string-upcase (funcall fmt-accessor definer))
-                          (first slot-spec))
-                  :keyword)))))
+           (append
+            slot-spec
+            (list keyword
+                  (intern
+                   (format nil (string-upcase (funcall fmt-accessor definer))
+                           (first slot-spec))
+                   
+                   package))))))
    (slot-specs-of definer)))
 
 (defun ensure-slot-spec-initargs (definer)
   (ensure-slot-spec
    definer
    (lambda (slot-spec) (getf (rest slot-spec) :initarg))
-   :initarg #'initarg-format-of))
+   :initarg #'initarg-format-of
+   :keyword))
 
 (defun ensure-slot-spec-accessors (definer)
   (ensure-slot-spec
