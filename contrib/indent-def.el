@@ -69,11 +69,11 @@
   (lisp-indent-259
    (with-position-at-def-type (elt state 1)
     (cond ((looking-at lisp-indent-def-function-regexp)
-	   '(4 4 (&rest 4) &body))
+	   '(4 4 (&whole 4 &rest 4) &body))
 	  ((looking-at lisp-indent-def-variable-regexp)
 	   '(4 4 &body))
 	  ((looking-at lisp-indent-def-setf-regexp)
-	   '(4 4 (&rest 4) 4 &body))
+	   '(4 4 (&whole 4 &rest 4) 4 &body))
 	  (t
 	   (error "No available indentation for definer of type `%s'."
 		  (current-word)))))
