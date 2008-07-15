@@ -25,17 +25,19 @@
 
 (require 'cl)
 
-(defmacro concatenate-symbols-for-regexp (&rest symbols)
+(defmacro concatenate-def-types-for-regexp (&rest symbols)
   (with-output-to-string
+    (princ "(?\\(")
     (let (not-first)
       (while symbols
-	(if not-first
-	    (princ "\\|")
-	  (setq not-first t))
-	(princ (pop symbols))))))
+        (if not-first
+            (princ "\\|")
+          (setq not-first t))
+        (princ (pop symbols))))
+    (princ "\\)")))
 
 (defcustom lisp-indent-def-function-regexp
-  (concatenate-symbols-for-regexp
+  (concatenate-def-types-for-regexp
    function macro compiler-macro method generic type print-object class
    condition)
   "Definer types will be indented like a function definition form."
@@ -43,14 +45,14 @@
   :group 'lisp-indent)
 
 (defcustom lisp-indent-def-variable-regexp
-  (concatenate-symbols-for-regexp
+  (concatenate-def-types-for-regexp
    variable constant load-time-constant special-variable symbol-macro struct)
   "Definer types will be indented like a variable definition form."
   :type 'string
   :group 'lisp-indent)
 
 (defcustom lisp-indent-def-setf-regexp
-  (concatenate-symbols-for-regexp setf)
+  (concatenate-def-types-for-regexp setf)
   "Definer types will be indented like a setf definition form."
   :type 'string
   :group 'lisp-indent)
@@ -58,25 +60,22 @@
 (defmacro with-position-at-def-type (position &rest body)
   `(save-excursion
      (goto-char ,position)
-     (forward-char 1)
-     (forward-sexp 2)
-     (backward-sexp)
-     (when (looking-at "(")
-       (forward-char 1))
+     (forward-char)
+     (forward-sexp 1)
+     (while (forward-comment 1))
      ,@body))
 
 (defun lisp-indent-def (path state indent-point sexp-column normal-indent)
   (lisp-indent-259
    (with-position-at-def-type (elt state 1)
-    (cond ((looking-at lisp-indent-def-function-regexp)
-	   '(4 4 (&whole 4 &rest 4) &body))
-	  ((looking-at lisp-indent-def-variable-regexp)
-	   '(4 4 &body))
-	  ((looking-at lisp-indent-def-setf-regexp)
-	   '(4 4 (&whole 4 &rest 4) 4 &body))
-	  (t
-	   (error "No available indentation for definer of type `%s'."
-		  (current-word)))))
+     (cond ((looking-at lisp-indent-def-function-regexp)
+            '(4 4 &lambda &body))
+           ((looking-at lisp-indent-def-variable-regexp)
+            '(4 4 &body))
+           ((looking-at lisp-indent-def-setf-regexp)
+            '(4 4 &lambda &body))
+           (t
+            '(&body))))
    path state indent-point sexp-column normal-indent))
 
 (put 'def 'common-lisp-indent-function 'lisp-indent-def)
