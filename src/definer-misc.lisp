@@ -81,6 +81,16 @@
    (lambda (slot-spec) (getf (rest slot-spec) :writer))
    :writer #'reader-format-of))
 
+(defun expand-class-like-definer (definer function)
+  `(progn
+     (,function ,(name-of definer) ,(superclasses-of definer)
+       ,(slot-specs-of definer)
+       ,@(class-options-of definer))
+     ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
+     ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
+     ,@(when (has-option-p definer #\a)
+         `((export ',(extract-class-accessors definer))))))
+
 
 ;;; CLASS DEFINER ROUTINES
 
@@ -161,19 +171,15 @@
                         :initial-value nil))))
 
 (defmethod expand-definer ((definer class-definer))
-  `(progn
-     (defclass ,(name-of definer) ,(superclasses-of definer)
-       ,(slot-specs-of definer)
-       ,@(class-options-of definer))
-     ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
-     ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
-     ,@(when (has-option-p definer #\a)
-         `((export ',(extract-class-accessors definer))))))
+  (expand-class-like-definer definer 'defclass))
 
 
 ;;; CONDITION DEFINER ROUTINES
 
 (defclass condition-definer (class-definer) ())
+
+(defmethod expand-definer ((definer condition-definer))
+  (expand-class-like-definer definer 'define-condition))
 
 
 ;;; STRUCT DEFINER ROUTINES

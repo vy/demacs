@@ -78,6 +78,7 @@
    :ensure-slot-spec-accessors
    :ensure-slot-spec-readers
    :ensure-slot-spec-writers
+   :expand-class-like-definer
    :class-definer
    :condition-definer
    :struct-definer))
