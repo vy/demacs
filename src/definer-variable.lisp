@@ -65,7 +65,7 @@
 ;;; CONSTANT DEFINER ROUTINES
 
 (defclass constant-definer (variable-definer)
-  ((test-function :accessor test-function-of :initform #'eql)))
+  ((test-function :accessor test-function-of :initform 'eql)))
 
 (defmethod initialize-definer ((definer constant-definer))
   (initialize-and-validate-variable-like-definer
@@ -80,7 +80,7 @@
     `(if (not (boundp ',name))
          ,new-value
          ,(let ((old-value name)
-                (test-function (test-function-of definer)))
+                (test-function (ensure-function (test-function-of definer))))
             `(cond ((not (constantp ',name))
                     (cerror "Try to redefine the variable as a constant."
                             "~@<~s is an already bound non-constant variable ~
