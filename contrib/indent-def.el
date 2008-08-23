@@ -73,7 +73,7 @@
            ((looking-at lisp-indent-def-variable-regexp)
             '(4 4 &body))
            ((looking-at lisp-indent-def-setf-regexp)
-            '(4 4 &lambda &body))
+            '(4 4 4 &lambda &body))
            (t
             '(&body))))
    path state indent-point sexp-column normal-indent))
