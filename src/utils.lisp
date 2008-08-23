@@ -30,9 +30,8 @@
      (when ,var ,@body)))
 
 (defun ensure-function (form)
-  (cond ((and (consp form) (member (car form) '(function lambda))) form)
-        ((and (consp form) (eql (car form) 'quote)) `(fdefinition ,form))
-        ((atom form) `(function ,form))
+  (cond ((and (consp form) (member (car form) '(function quote))) (second form))
+        ((or (atom form) (and (consp form) (eql (car form) 'lambda))) form)
         (t (error "Invalid ENSURE-FUNCTION input: ~A" form))))
 
 ;;; Copied from lists.lisp of alexandria project. (See

@@ -86,12 +86,12 @@
                             "~@<~s is an already bound non-constant variable ~
                              whose value is ~s.~:@>"
                             ',name ,old-value))
-                   ((not (funcall ,test-function ',old-value ',new-value))
+                   ((not (,test-function ,old-value ,new-value))
                     (cerror "Try to redefine the constant."
                             "~@<~s is an already defined constant whose value ~
                              ~s is not equal to the provided initial value ~s ~
                              under ~s.~:@>"
-                            ',name ,old-value ,test-function)
+                            ',name ,old-value ',test-function)
                     ,new-value)
                    (t ,old-value))))))
 
