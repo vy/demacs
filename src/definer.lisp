@@ -126,8 +126,11 @@
   (lambda (definer options)
     ;; Apply each OPTION-WRITER-FUNCTION, if found appropriate keyword in the
     ;; options of related definer.
-    (loop for (keyword writer-function) on option-writers by #'cddr
-          do (when-let (option (getf options keyword))
+    (loop with no-value-p = (gensym)
+          for (keyword writer-function) on option-writers by #'cddr
+          for option = (getf options keyword no-value-p)
+          unless (eql option no-value-p)
+          do (progn
                (funcall writer-function definer keyword option)
                (remf options keyword)))
     ;; Check whether we processed all options.
