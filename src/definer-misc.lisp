@@ -124,7 +124,7 @@
 (defmethod initialize-definer ((definer class-definer))
   (destructuring-bind (name superclasses slot-specs &rest class-options)
       (forms-of definer)
-    (unless (consp slot-specs)
+    (unless (listp slot-specs)
       (oerror "Expecting a slot-spec list in options ~s of definer ~
                ~s of type ~s."
               (options-of definer) definer))
