@@ -124,12 +124,13 @@
 (defmethod initialize-definer ((definer class-definer))
   (destructuring-bind (name superclasses slot-specs &rest class-options)
       (forms-of definer)
+    ;; Set (NAME-OF DEFINER) before any OERROR calls.
+    (setf (name-of definer) name)
     (unless (listp slot-specs)
       (oerror "Expecting a slot-spec list in options ~s of definer ~
                ~s of type ~s."
               (options-of definer) definer))
-    (setf (name-of definer) name
-          (superclasses-of definer) superclasses
+    (setf (superclasses-of definer) superclasses
           (slot-specs-of definer) slot-specs
           (class-options-of definer) class-options))
   (validate-definer-options
