@@ -76,7 +76,7 @@ symbol-macro-spec ::= symbol-macro | (symbol-macro {variable-option}*)
 
 (def class-spec name ({superclass}*) ({slot-specifier}*) [[class-option]])
 class-spec ::= class | (class {class-option}* &key initarg-format accessor-format reader-format writer-format)
-class-option ::= e | a | s | n | c | r | w
+class-option ::= e | a | s | n | c | r | w | m
 
 (def condition-spec name (parent-type*) ({slot-spec}*) option*)
 condition-spec ::= condition | (condition {class-option}* &key initarg-format accessor-format reader-format writer-format)
@@ -95,6 +95,8 @@ n -- Introduce :INITARG keywords into slot specifiers.
 c -- Introduce :ACCESSOR keywords into slot specifiers.
 r -- Introduce :READER keywords into slot specifiers.
 w -- Introduce :WRITER keywords into slot specifiers.
+m -- Make a MAKE-FOO function according to the class. (Exported if class is also
+     requested to be exported.)
 
 
 	   --- E   X   T   E   N   S   I   B   I   L   I   T   Y ---

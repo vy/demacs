@@ -89,7 +89,14 @@
      ,@(when (has-option-p definer #\e) `((export ',(name-of definer))))
      ,@(when (has-option-p definer #\s) `((export ',(extract-slots definer))))
      ,@(when (has-option-p definer #\a)
-         `((export ',(extract-class-accessors definer))))))
+         `((export ',(extract-class-accessors definer))))
+     ,@(when (has-option-p definer #\m)
+         (let ((make-sym (intern (format nil "~:@(make-~a~)" (name-of definer)))))
+           (with-unique-names (keys)
+             `((defun ,make-sym (&rest ,keys &key &allow-other-keys)
+                 (apply #'make-instance ',(name-of definer) :allow-other-keys t ,keys))
+               ,@(when (has-option-p definer #\e)
+                   `((export ',make-sym)))))))))
 
 
 ;;; CLASS DEFINER ROUTINES
@@ -116,7 +123,7 @@
     :initform "~s-of")))
 
 (defmethod available-definer-options ((definer class-definer))
-  (list #\e #\a #\s #\n #\c #\r #\w))
+  (list #\e #\a #\s #\n #\c #\r #\w #\m))
 
 (defmethod restricted-definer-options ((definer class-definer))
   nil)
